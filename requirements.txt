@@ -52,4 +52,4 @@ tenacity==8.2.3  # Retry logic
 python-dateutil==2.8.2
 
 # Pre-commit hooks
-pre-commit==3.5.0
+pre-commit==3.6.0
