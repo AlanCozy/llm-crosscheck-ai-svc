@@ -1,0 +1,40 @@
+{# description: Base template structure for consistent prompt formatting #}
+{# version: 1.0.0 #}
+{# required_variables: task_description #}
+{# optional_variables: context, constraints, output_format, examples #}
+
+## Task Overview
+{{ task_description }}
+
+{% if context %}
+## Context
+{{ context }}
+{% endif %}
+
+{% block main_content %}
+{# This block should be overridden by child templates #}
+{% endblock %}
+
+{% if constraints %}
+## Constraints & Guidelines
+{% for constraint in constraints %}
+- {{ constraint }}
+{% endfor %}
+{% endif %}
+
+{% if output_format %}
+## Required Output Format
+{{ output_format }}
+{% endif %}
+
+{% if examples %}
+## Examples
+{% for example in examples %}
+### Example {{ loop.index }}
+{{ example }}
+{% endfor %}
+{% endif %}
+
+{% block additional_instructions %}
+{# Optional block for additional instructions #}
+{% endblock %} 

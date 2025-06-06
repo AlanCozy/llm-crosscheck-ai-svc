@@ -1,0 +1,45 @@
+{# description: Template for LLM-assisted code review analysis #}
+{# version: 1.0.0 #}
+{# required_variables: code, language #}
+{# optional_variables: focus_areas, severity_threshold, include_suggestions #}
+
+Please analyse the following {{ language }} code for potential issues and improvements:
+
+## Code to Review
+```{{ language }}
+{{ code }}
+```
+
+## Review Focus
+{% if focus_areas %}
+Focus specifically on these areas:
+{% for area in focus_areas %}
+- {{ area }}
+{% endfor %}
+{% else %}
+Please provide a comprehensive review covering:
+- Code quality and style
+- Potential bugs and security issues
+- Performance considerations
+- Maintainability and readability
+- Best practices adherence
+{% endif %}
+
+## Analysis Requirements
+- Identify issues {% if severity_threshold %}with {{ severity_threshold }} or higher severity{% endif %}
+- Explain the reasoning behind each finding
+- Rate the severity of each issue (Critical, High, Medium, Low)
+{% if include_suggestions %}
+- Provide specific improvement suggestions with code examples
+{% endif %}
+
+## Output Format
+Please structure your response as:
+1. **Summary**: Brief overview of code quality
+2. **Issues Found**: List each issue with severity and explanation
+3. **Recommendations**: Priority-ordered improvement suggestions
+{% if include_suggestions %}
+4. **Code Examples**: Specific implementation improvements
+{% endif %}
+
+Begin your analysis: 

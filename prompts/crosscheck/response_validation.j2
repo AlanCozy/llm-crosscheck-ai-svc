@@ -1,0 +1,62 @@
+{# description: Template for cross-checking and validating LLM responses #}
+{# version: 1.0.0 #}
+{# required_variables: original_query, llm_response #}
+{# optional_variables: expected_criteria, validation_aspects, response_provider #}
+
+You are tasked with performing a comprehensive cross-check analysis of an LLM response.
+
+## Original Query
+{{ original_query | quote }}
+
+## LLM Response to Validate
+{% if response_provider %}*Response from {{ response_provider }}:*{% endif %}
+{{ llm_response | quote }}
+
+## Validation Framework
+Please evaluate this response across the following dimensions:
+
+### 1. Accuracy & Factual Correctness
+- Are the facts presented accurate?
+- Are there any misleading or incorrect statements?
+- Is the information up-to-date and relevant?
+
+### 2. Completeness & Relevance
+- Does the response fully address the original query?
+- Are there important aspects missing?
+- Is all provided information relevant to the question?
+
+### 3. Clarity & Coherence
+- Is the response clear and easy to understand?
+- Is the logical flow coherent?
+- Are there any contradictions within the response?
+
+### 4. Reasoning Quality
+- Is the reasoning sound and well-structured?
+- Are conclusions properly supported by evidence?
+- Are assumptions clearly stated?
+
+{% if validation_aspects %}
+### 5. Additional Validation Aspects
+{% for aspect in validation_aspects %}
+- {{ aspect }}
+{% endfor %}
+{% endif %}
+
+{% if expected_criteria %}
+### Expected Criteria Checklist
+{% for criterion in expected_criteria %}
+- [ ] {{ criterion }}
+{% endfor %}
+{% endif %}
+
+## Analysis Output
+Please provide your assessment in this structure:
+
+1. **Overall Assessment**: Brief summary of response quality (Excellent/Good/Fair/Poor)
+2. **Strengths**: What the response does well
+3. **Issues Identified**: Specific problems or concerns
+4. **Missing Elements**: Important information not addressed
+5. **Improvement Suggestions**: How the response could be enhanced
+6. **Confidence Score**: Your confidence in this assessment (1-10)
+
+Begin your cross-check analysis: 
