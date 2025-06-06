@@ -5,7 +5,6 @@ This module provides a centralised factory for creating and configuring
 different LLM provider instances based on configuration.
 """
 
-from typing import Dict, Type
 
 from ..schemas.llm import LLMProvider, LLMProviderConfig
 from .anthropic_llm import AnthropicLLM
@@ -17,7 +16,7 @@ class LLMFactory:
     """Factory for creating LLM provider instances."""
 
     # Registry of available LLM providers
-    _providers: Dict[LLMProvider, Type[BaseLLM]] = {
+    _providers: dict[LLMProvider, type[BaseLLM]] = {
         LLMProvider.OPENAI: OpenAILLM,
         LLMProvider.ANTHROPIC: AnthropicLLM,
     }
@@ -56,7 +55,7 @@ class LLMFactory:
 
     @classmethod
     def register_provider(
-        cls, provider: LLMProvider, provider_class: Type[BaseLLM]
+        cls, provider: LLMProvider, provider_class: type[BaseLLM]
     ) -> None:
         """
         Register a new LLM provider.
@@ -66,7 +65,7 @@ class LLMFactory:
             provider_class: Provider implementation class
         """
         if not issubclass(provider_class, BaseLLM):
-            raise LLMValidationError(f"Provider class must inherit from BaseLLM")
+            raise LLMValidationError("Provider class must inherit from BaseLLM")
 
         cls._providers[provider] = provider_class
 

@@ -2,8 +2,8 @@
 FastAPI application entry point for LLM CrossCheck AI Service.
 """
 
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator
 
 import structlog
 import uvicorn
@@ -11,8 +11,6 @@ from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
-from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
-from starlette.responses import Response
 
 from ..config.settings import get_settings
 from ..core.logging import setup_logging

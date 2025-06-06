@@ -8,7 +8,8 @@ ensuring consistent behaviour across different AI service providers.
 import asyncio
 import time
 from abc import ABC, abstractmethod
-from typing import Any, AsyncIterator, Dict, List, Optional
+from collections.abc import AsyncIterator
+from typing import Any
 
 from ..core.logging import get_logger
 from ..schemas.llm import LLMProviderConfig, LLMRequest, LLMResponse
@@ -20,7 +21,7 @@ class LLMError(Exception):
     """Base exception for all LLM-related errors."""
 
     def __init__(
-        self, message: str, provider: Optional[str] = None, model: Optional[str] = None
+        self, message: str, provider: str | None = None, model: str | None = None
     ):
         self.message = message
         self.provider = provider
@@ -37,7 +38,7 @@ class LLMConnectionError(LLMError):
 class LLMRateLimitError(LLMError):
     """Raised when rate limits are exceeded."""
 
-    def __init__(self, message: str, retry_after: Optional[float] = None, **kwargs):
+    def __init__(self, message: str, retry_after: float | None = None, **kwargs):
         super().__init__(message, **kwargs)
         self.retry_after = retry_after
 
@@ -92,7 +93,7 @@ class BaseLLM(ABC):
 
     @property
     @abstractmethod
-    def supported_models(self) -> List[str]:
+    def supported_models(self) -> list[str]:
         """Return list of models supported by this provider."""
         pass
 
@@ -268,7 +269,7 @@ class BaseLLM(ABC):
                     f"Unexpected error: {str(e)}", self.provider_name, request.model
                 )
 
-    async def health_check(self) -> Dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:
         """
         Perform a health check on the LLM provider.
 

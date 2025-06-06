@@ -5,11 +5,10 @@ This service provides high-level methods for cross-checking LLM responses,
 demonstrating practical usage of the LLM abstraction layer and prompt templates.
 """
 
-import asyncio
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from ..core.logging import LoggerMixin
-from ..schemas.llm import LLMProvider, LLMProviderConfig, LLMResponse
+from ..schemas.llm import LLMProvider, LLMProviderConfig
 from .llm_manager import LLMManager
 
 
@@ -21,7 +20,7 @@ class CrossCheckService(LoggerMixin):
     comparison, and comprehensive analysis workflows.
     """
 
-    def __init__(self, llm_manager: Optional[LLMManager] = None):
+    def __init__(self, llm_manager: LLMManager | None = None):
         """
         Initialise the CrossCheck service.
 
@@ -32,7 +31,7 @@ class CrossCheckService(LoggerMixin):
 
         self.logger.info("Initialised CrossCheck service")
 
-    def configure_providers(self, provider_configs: List[Dict[str, Any]]) -> None:
+    def configure_providers(self, provider_configs: list[dict[str, Any]]) -> None:
         """
         Configure multiple LLM providers from configuration.
 
@@ -52,7 +51,7 @@ class CrossCheckService(LoggerMixin):
 
             except Exception as e:
                 self.logger.error(
-                    f"Failed to configure provider",
+                    "Failed to configure provider",
                     extra={"config": config_dict, "error": str(e)},
                 )
 
@@ -60,10 +59,10 @@ class CrossCheckService(LoggerMixin):
         self,
         query: str,
         response: str,
-        response_provider: Optional[str] = None,
-        validation_criteria: Optional[List[str]] = None,
-        validator_provider: Optional[LLMProvider] = None,
-    ) -> Dict[str, Any]:
+        response_provider: str | None = None,
+        validation_criteria: list[str] | None = None,
+        validator_provider: LLMProvider | None = None,
+    ) -> dict[str, Any]:
         """
         Validate an LLM response using cross-checking.
 
@@ -139,7 +138,7 @@ class CrossCheckService(LoggerMixin):
             self.logger.error("Failed to validate response", extra={"error": str(e)})
             raise
 
-    def _extract_confidence_score(self, validation_content: str) -> Optional[float]:
+    def _extract_confidence_score(self, validation_content: str) -> float | None:
         """Extract confidence score from validation content."""
         # Simple regex-based extraction (would be more sophisticated in production)
         import re

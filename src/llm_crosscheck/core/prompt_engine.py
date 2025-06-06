@@ -5,9 +5,8 @@ This module provides a comprehensive prompt engine that handles loading,
 caching, and rendering of Jinja2 templates for LLM prompts.
 """
 
-import os
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set
+from typing import Any
 
 from jinja2 import (
     Environment,
@@ -33,7 +32,7 @@ class PromptEngine:
 
     def __init__(
         self,
-        template_dirs: List[str],
+        template_dirs: list[str],
         auto_reload: bool = False,
         cache_size: int = 100,
     ):
@@ -50,8 +49,8 @@ class PromptEngine:
         self.cache_size = cache_size
 
         # Template cache
-        self._template_cache: Dict[str, PromptTemplate] = {}
-        self._jinja_cache: Dict[str, Template] = {}
+        self._template_cache: dict[str, PromptTemplate] = {}
+        self._jinja_cache: dict[str, Template] = {}
 
         # Validate template directories
         self._validate_template_dirs()
@@ -195,7 +194,7 @@ class PromptEngine:
             return template.render(**context.variables)
         except TemplateError as e:
             logger.error(
-                f"Failed to render template string",
+                "Failed to render template string",
                 extra={
                     "error": str(e),
                     "template_length": len(template_string),
@@ -204,7 +203,7 @@ class PromptEngine:
             )
             raise TemplateError(f"Failed to render template string: {str(e)}")
 
-    def list_templates(self, category: Optional[str] = None) -> List[str]:
+    def list_templates(self, category: str | None = None) -> list[str]:
         """
         List available templates.
 
@@ -293,7 +292,7 @@ class PromptEngine:
             return text[: max_length - len(suffix)] + suffix
 
         def format_list(
-            items: List[Any], separator: str = ", ", last_separator: str = " and "
+            items: list[Any], separator: str = ", ", last_separator: str = " and "
         ) -> str:
             """Format a list with proper separators."""
             if not items:
@@ -317,7 +316,7 @@ class PromptEngine:
         self.jinja_env.filters["format_list"] = format_list
         self.jinja_env.filters["quote"] = quote_text
 
-    def _find_template_file(self, template_name: str) -> Optional[Path]:
+    def _find_template_file(self, template_name: str) -> Path | None:
         """Find template file by name."""
         template_filename = f"{template_name}.j2"
 
@@ -343,7 +342,7 @@ class PromptEngine:
     ) -> PromptTemplate:
         """Load template from file."""
         try:
-            with open(template_path, "r", encoding="utf-8") as f:
+            with open(template_path, encoding="utf-8") as f:
                 content = f.read()
 
             # Extract metadata from template comments if present
@@ -372,7 +371,7 @@ class PromptEngine:
                 f"Failed to load template file '{template_path}': {str(e)}"
             )
 
-    def _extract_template_metadata(self, content: str) -> Dict[str, Any]:
+    def _extract_template_metadata(self, content: str) -> dict[str, Any]:
         """Extract metadata from template comments."""
         metadata = {}
         lines = content.split("\n")

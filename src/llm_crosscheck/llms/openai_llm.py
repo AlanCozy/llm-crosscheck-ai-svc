@@ -5,8 +5,9 @@ This module provides integration with OpenAI's GPT models through their official
 including support for both standard and streaming completions.
 """
 
+from collections.abc import AsyncIterator
 from datetime import datetime
-from typing import Any, AsyncIterator, Dict, List
+from typing import Any
 
 import openai
 from openai import AsyncOpenAI
@@ -74,7 +75,7 @@ class OpenAILLM(BaseLLM):
         return "OpenAI"
 
     @property
-    def supported_models(self) -> List[str]:
+    def supported_models(self) -> list[str]:
         """Return list of models supported by this provider."""
         return self.SUPPORTED_MODELS
 
@@ -241,8 +242,8 @@ class OpenAILLM(BaseLLM):
             )
 
     def _convert_messages_to_openai(
-        self, messages: List[LLMMessage]
-    ) -> List[Dict[str, Any]]:
+        self, messages: list[LLMMessage]
+    ) -> list[dict[str, Any]]:
         """
         Convert standardised messages to OpenAI format.
 

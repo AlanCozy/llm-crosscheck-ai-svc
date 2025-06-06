@@ -33,18 +33,18 @@ jobs:
       - name: Run pre-commit hooks
         run: |
           pre-commit run --all-files
-
-      - name: Run Ruff linter
-        run: |
-          ruff check src/ tests/
-
-      - name: Run Black formatter check
-        run: |
-          black --check src/ tests/
-
-      - name: Run isort import sorting check
-        run: |
-          isort --check-only src/ tests/
+#
+#      - name: Run Ruff linter
+#        run: |
+#          ruff check src/ tests/
+#
+#      - name: Run Black formatter check
+#        run: |
+#          black --check src/ tests/
+#
+#      - name: Run isort import sorting check
+#        run: |
+#          isort --check-only src/ tests/
 
       - name: Run MyPy type checking
         run: |

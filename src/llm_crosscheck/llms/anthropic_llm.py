@@ -5,8 +5,9 @@ This module provides integration with Anthropic's Claude models through their of
 including support for both standard and streaming completions.
 """
 
+from collections.abc import AsyncIterator
 from datetime import datetime
-from typing import Any, AsyncIterator, Dict, List
+from typing import Any
 from uuid import uuid4
 
 import anthropic
@@ -69,7 +70,7 @@ class AnthropicLLM(BaseLLM):
         return "Anthropic"
 
     @property
-    def supported_models(self) -> List[str]:
+    def supported_models(self) -> list[str]:
         """Return list of models supported by this provider."""
         return self.SUPPORTED_MODELS
 
@@ -233,8 +234,8 @@ class AnthropicLLM(BaseLLM):
             )
 
     def _convert_messages_to_anthropic(
-        self, messages: List[LLMMessage]
-    ) -> tuple[str, List[Dict[str, str]]]:
+        self, messages: list[LLMMessage]
+    ) -> tuple[str, list[dict[str, str]]]:
         """
         Convert standardised messages to Anthropic format.
 

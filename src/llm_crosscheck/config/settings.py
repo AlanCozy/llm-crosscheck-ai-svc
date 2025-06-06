@@ -1,5 +1,3 @@
-from typing import List
-
 from pydantic_settings import BaseSettings
 
 
@@ -14,9 +12,9 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = "INFO"
     LOG_FORMAT: str = "json"
     ENABLE_METRICS: bool = True
-    ALLOWED_ORIGINS: List[str] = ["*"]
-    ALLOWED_METHODS: List[str] = ["*"]
-    ALLOWED_HEADERS: List[str] = ["*"]
+    ALLOWED_ORIGINS: list[str] = ["*"]
+    ALLOWED_METHODS: list[str] = ["*"]
+    ALLOWED_HEADERS: list[str] = ["*"]
     RATE_LIMIT_PER_MINUTE: int = 60
     RATE_LIMIT_BURST: int = 10
 

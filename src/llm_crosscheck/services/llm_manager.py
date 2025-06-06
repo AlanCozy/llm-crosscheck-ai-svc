@@ -6,7 +6,7 @@ together to create a comprehensive LLM management system.
 """
 
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from ..core.logging import LoggerMixin, get_logger
 from ..core.prompt_engine import PromptEngine
@@ -34,7 +34,7 @@ class LLMManager(LoggerMixin):
 
     def __init__(
         self,
-        prompt_dirs: Optional[List[str]] = None,
+        prompt_dirs: list[str] | None = None,
         default_provider: LLMProvider = LLMProvider.OPENAI,
     ):
         """
@@ -58,7 +58,7 @@ class LLMManager(LoggerMixin):
         )
 
         # LLM provider instances
-        self._llm_providers: Dict[LLMProvider, Any] = {}
+        self._llm_providers: dict[LLMProvider, Any] = {}
         self.default_provider = default_provider
 
         self.logger.info(
@@ -101,10 +101,10 @@ class LLMManager(LoggerMixin):
     async def generate_from_template(
         self,
         template_name: str,
-        context: Dict[str, Any],
-        model: Optional[str] = None,
-        provider: Optional[LLMProvider] = None,
-        generation_params: Optional[Dict[str, Any]] = None,
+        context: dict[str, Any],
+        model: str | None = None,
+        provider: LLMProvider | None = None,
+        generation_params: dict[str, Any] | None = None,
     ) -> LLMResponse:
         """
         Generate LLM response using a prompt template.
@@ -173,9 +173,9 @@ class LLMManager(LoggerMixin):
         self,
         original_query: str,
         response_to_check: str,
-        response_provider: Optional[str] = None,
-        validation_aspects: Optional[List[str]] = None,
-        checker_provider: Optional[LLMProvider] = None,
+        response_provider: str | None = None,
+        validation_aspects: list[str] | None = None,
+        checker_provider: LLMProvider | None = None,
     ) -> LLMResponse:
         """
         Cross-check an LLM response using the validation template.
@@ -215,10 +215,10 @@ class LLMManager(LoggerMixin):
         self,
         code: str,
         language: str,
-        focus_areas: Optional[List[str]] = None,
-        severity_threshold: Optional[str] = None,
+        focus_areas: list[str] | None = None,
+        severity_threshold: str | None = None,
         include_suggestions: bool = True,
-        provider: Optional[LLMProvider] = None,
+        provider: LLMProvider | None = None,
     ) -> LLMResponse:
         """
         Perform code review using the code review template.
@@ -256,7 +256,7 @@ class LLMManager(LoggerMixin):
             },
         )
 
-    def list_available_templates(self, category: Optional[str] = None) -> List[str]:
+    def list_available_templates(self, category: str | None = None) -> list[str]:
         """
         List available prompt templates.
 
@@ -268,7 +268,7 @@ class LLMManager(LoggerMixin):
         """
         return self.prompt_engine.list_templates(category=category)
 
-    def get_available_providers(self) -> List[LLMProvider]:
+    def get_available_providers(self) -> list[LLMProvider]:
         """
         Get list of registered providers.
 
@@ -277,7 +277,7 @@ class LLMManager(LoggerMixin):
         """
         return list(self._llm_providers.keys())
 
-    async def health_check(self) -> Dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:
         """
         Perform health check on all registered providers.
 

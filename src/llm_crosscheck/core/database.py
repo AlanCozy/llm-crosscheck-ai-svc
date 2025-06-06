@@ -3,7 +3,6 @@ MongoDB database configuration and connection management.
 """
 
 import os
-from typing import List, Optional
 
 from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -24,10 +23,10 @@ class DatabaseManager:
     """MongoDB database connection manager."""
 
     def __init__(self):
-        self.client: Optional[AsyncIOMotorClient] = None
+        self.client: AsyncIOMotorClient | None = None
         self.database = None
 
-    async def connect(self, mongodb_url: Optional[str] = None) -> None:
+    async def connect(self, mongodb_url: str | None = None) -> None:
         """Connect to MongoDB database."""
         if not mongodb_url:
             mongodb_url = os.getenv(
@@ -140,7 +139,7 @@ async def get_database():
     return db_manager.database
 
 
-async def init_database(mongodb_url: Optional[str] = None) -> None:
+async def init_database(mongodb_url: str | None = None) -> None:
     """Initialize database connection."""
     await db_manager.connect(mongodb_url)
     await db_manager.create_indexes()
