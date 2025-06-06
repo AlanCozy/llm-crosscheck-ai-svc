@@ -7,15 +7,17 @@ This directory contains practical examples demonstrating how to use the LLM Cros
 ### Prerequisites
 
 1. **Install dependencies:**
+
    ```bash
    pip install -r requirements.txt
    ```
 
 2. **Set up API keys:**
+
    ```bash
    # For OpenAI
    export OPENAI_API_KEY="your-openai-api-key"
-   
+
    # For Anthropic
    export ANTHROPIC_API_KEY="your-anthropic-api-key"
    ```
@@ -23,11 +25,13 @@ This directory contains practical examples demonstrating how to use the LLM Cros
 ### Running Examples
 
 #### Basic Usage Example
+
 ```bash
 python examples/basic_usage.py
 ```
 
 This example demonstrates:
+
 - LLM Manager initialisation
 - Provider configuration
 - Template-based prompt generation
@@ -37,7 +41,9 @@ This example demonstrates:
 ## 📝 Example Files
 
 ### `basic_usage.py`
+
 A comprehensive example showing:
+
 - **Provider Setup**: Configure OpenAI and Anthropic providers
 - **Template Usage**: Generate responses using Jinja2 templates
 - **Code Review**: Analyse code using the code review template
@@ -60,10 +66,11 @@ A comprehensive example showing:
 
 1. Add templates to the `prompts/` directory
 2. Use Jinja2 syntax with metadata comments:
+
    ```jinja2
    {# description: Your template description #}
    {# required_variables: var1, var2 #}
-   
+
    Your template content here with {{ var1 }} and {{ var2 }}
    ```
 
@@ -71,16 +78,17 @@ A comprehensive example showing:
 
 ### Environment Variables
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `OPENAI_API_KEY` | OpenAI API key | Optional* |
-| `ANTHROPIC_API_KEY` | Anthropic API key | Optional* |
+| Variable            | Description       | Required   |
+| ------------------- | ----------------- | ---------- |
+| `OPENAI_API_KEY`    | OpenAI API key    | Optional\* |
+| `ANTHROPIC_API_KEY` | Anthropic API key | Optional\* |
 
-*At least one provider API key is required
+\*At least one provider API key is required
 
 ### Provider Models
 
 The examples use cost-effective models by default:
+
 - **OpenAI**: `gpt-3.5-turbo`
 - **Anthropic**: `claude-3-haiku-20240307`
 
@@ -106,4 +114,4 @@ You can modify these in the example code to use more powerful models like `gpt-4
 
 - Check the main README.md for detailed setup instructions
 - Review the API documentation at http://localhost:8000/docs
-- Examine the source code in `src/llm_crosscheck/` 
+- Examine the source code in `src/llm_crosscheck/`

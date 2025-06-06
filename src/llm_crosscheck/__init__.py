@@ -10,7 +10,7 @@ __email__ = "team@llm-crosscheck.com"
 __description__ = "A robust Python service for cross-checking and validating Large Language Model outputs"
 
 from .config.settings import get_settings
-from .core.exceptions import LLMCrossCheckException
+from .exceptions.exceptions import LLMCrossCheckException
 
 __all__ = [
     "__version__",

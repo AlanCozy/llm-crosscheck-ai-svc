@@ -44,6 +44,7 @@ llm-crosscheck-ai-svc/
 ## 🧠 Architecture Overview
 
 ### LLM Abstraction Layer
+
 - **Unified Interface**: Standardised API across multiple LLM providers
 - **Provider Support**: OpenAI, Anthropic, Mistral, Llama, Azure OpenAI, and more
 - **Error Handling**: Comprehensive error handling with retries and rate limiting
@@ -51,6 +52,7 @@ llm-crosscheck-ai-svc/
 - **Factory Pattern**: Easy provider instantiation and configuration
 
 ### Prompt Template Engine
+
 - **Jinja2 Powered**: Flexible template system with inheritance and custom filters
 - **Template Categories**: Organised by system, tasks, crosscheck, and common templates
 - **Variable Validation**: Required and optional variable checking
@@ -58,6 +60,7 @@ llm-crosscheck-ai-svc/
 - **Metadata Support**: Template versioning, descriptions, and validation rules
 
 ### Service Architecture
+
 - **LLM Manager**: Orchestrates multiple providers and template rendering
 - **CrossCheck Service**: High-level workflows for response validation
 - **Structured Logging**: JSON-formatted logs with context tracking
@@ -66,6 +69,7 @@ llm-crosscheck-ai-svc/
 ## 🛠️ Tech Stack
 
 ### Core Technologies
+
 - **Python 3.11+**: Modern Python with type hints and async support
 - **FastAPI**: High-performance async web framework
 - **Pydantic**: Data validation and serialisation
@@ -73,6 +77,7 @@ llm-crosscheck-ai-svc/
 - **Structlog**: Structured logging with JSON output
 
 ### LLM Providers
+
 - **OpenAI**: GPT-4, GPT-3.5 Turbo models
 - **Anthropic**: Claude 3 (Opus, Sonnet, Haiku) models
 - **Mistral AI**: Mistral models (when available)
@@ -81,6 +86,7 @@ llm-crosscheck-ai-svc/
 - **Extensible**: Easy to add new providers
 
 ### Infrastructure
+
 - **Docker**: Containerisation and deployment
 - **Redis**: Caching and session management
 - **PostgreSQL**: Persistent data storage (when enabled)
@@ -88,6 +94,7 @@ llm-crosscheck-ai-svc/
 - **Grafana**: Metrics visualisation and dashboards
 
 ### Development Tools
+
 - **Pytest**: Comprehensive testing framework
 - **Black**: Code formatting
 - **Ruff**: Fast Python linting
@@ -95,6 +102,7 @@ llm-crosscheck-ai-svc/
 - **Pre-commit**: Git hooks for code quality
 
 ### Prerequisites
+
 - Python 3.11+
 - Docker & Docker Compose
 - Git
@@ -102,27 +110,30 @@ llm-crosscheck-ai-svc/
 ### Development Setup
 
 1. **Clone and setup environment:**
+
    ```bash
    git clone <repository-url>
    cd llm-crosscheck-ai-svc
    python -m venv venv
-   
+
    # Windows
    venv\Scripts\activate
-   
+
    # Linux/Mac
    source venv/bin/activate
-   
+
    pip install -r requirements-dev.txt
    ```
 
 2. **Environment Configuration:**
+
    ```bash
    cp .env.example .env
    # Edit .env with your configurations
    ```
 
 3. **Run with Docker:**
+
    ```bash
    docker-compose up --build
    ```
@@ -179,7 +190,7 @@ provider_configs = [
         "default_model": "gpt-4"
     },
     {
-        "provider": "anthropic", 
+        "provider": "anthropic",
         "api_key": "your-anthropic-key",
         "default_model": "claude-3-sonnet-20240229"
     }
@@ -273,17 +284,20 @@ pytest tests/e2e/
 ## 📖 API Documentation
 
 Once running, visit:
+
 - **Swagger UI:** http://localhost:8000/docs
 - **ReDoc:** http://localhost:8000/redoc
 
 ## 🔧 Development
 
 ### Code Quality
+
 - **Linting:** `ruff check`
 - **Formatting:** `black . && isort .`
 - **Type Checking:** `mypy src/`
 
 ### Pre-commit Hooks
+
 ```bash
 pre-commit install
 ```
@@ -291,6 +305,7 @@ pre-commit install
 ## 🚀 Deployment
 
 Supports deployment to:
+
 - Docker containers
 - Kubernetes
 - Cloud platforms (AWS, GCP, Azure)
