@@ -9,7 +9,7 @@ import asyncio
 from typing import Any, Dict, List, Optional
 
 from ..core.logging import LoggerMixin
-from ..models.llm import LLMProvider, LLMProviderConfig, LLMResponse
+from ..schemas.llm import LLMProvider, LLMProviderConfig, LLMResponse
 from .llm_manager import LLMManager
 
 

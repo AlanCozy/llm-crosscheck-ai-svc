@@ -11,7 +11,7 @@ from typing import Any, AsyncIterator, Dict, List
 import openai
 from openai import AsyncOpenAI
 
-from ..models.llm import (
+from ..schemas.llm import (
     LLMChoice,
     LLMMessage,
     LLMProvider,

@@ -7,7 +7,7 @@ different LLM provider instances based on configuration.
 
 from typing import Dict, Type
 
-from ..models.llm import LLMProvider, LLMProviderConfig
+from ..schemas.llm import LLMProvider, LLMProviderConfig
 from .base import BaseLLM, LLMError, LLMValidationError
 from .openai_llm import OpenAILLM
 from .anthropic_llm import AnthropicLLM

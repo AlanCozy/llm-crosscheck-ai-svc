@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Optional
 from ..core.logging import LoggerMixin, get_logger
 from ..core.prompt_engine import PromptEngine
 from ..llms.factory import LLMFactory
-from ..models.llm import (
+from ..schemas.llm import (
     LLMMessage,
     LLMProvider,
     LLMProviderConfig,

@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Optional, Set
 
 from jinja2 import Environment, FileSystemLoader, Template, TemplateError, TemplateNotFound
 
-from ..models.llm import PromptTemplate, TemplateContext
+from ..schemas.llm import PromptTemplate, TemplateContext
 from .logging import get_logger
 
 logger = get_logger(__name__)

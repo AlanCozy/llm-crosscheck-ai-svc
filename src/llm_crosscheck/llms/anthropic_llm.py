@@ -12,7 +12,7 @@ from uuid import uuid4
 import anthropic
 from anthropic import AsyncAnthropic
 
-from ..models.llm import (
+from ..schemas.llm import (
     LLMChoice,
     LLMMessage,
     LLMProvider,

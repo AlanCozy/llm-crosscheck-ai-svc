@@ -5,8 +5,8 @@ A robust Python service for cross-checking and validating Large Language Model o
 """
 
 __version__ = "0.1.0"
-__author__ = "Your Team"
-__email__ = "team@yourcompany.com"
+__author__ = "Alan & Alfie"
+__email__ = "team@llm-crosscheck.com"
 __description__ = "A robust Python service for cross-checking and validating Large Language Model outputs"
 
 from .config.settings import get_settings

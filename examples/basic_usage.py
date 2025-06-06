@@ -16,7 +16,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from llm_crosscheck.services.llm_manager import LLMManager
 from llm_crosscheck.services.crosscheck_service import CrossCheckService
-from llm_crosscheck.models.llm import LLMProvider, LLMProviderConfig
+from llm_crosscheck.schemas.llm import LLMProvider, LLMProviderConfig
 
 
 async def main():
