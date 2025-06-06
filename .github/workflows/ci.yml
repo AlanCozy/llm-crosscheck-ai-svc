@@ -2,11 +2,11 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
   release:
-    types: [ published ]
+    types: [published]
 
 env:
   PYTHON_VERSION: "3.12"
@@ -61,7 +61,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.12"]
-    
+
     services:
       postgres:
         image: postgres:15
@@ -75,7 +75,7 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
-      
+
       redis:
         image: redis:7
         options: >-
@@ -119,7 +119,7 @@ jobs:
     name: Integration Tests
     runs-on: ubuntu-latest
     needs: [quality, test]
-    
+
     services:
       postgres:
         image: postgres:15
@@ -133,7 +133,7 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
-      
+
       redis:
         image: redis:7
         options: >-
@@ -170,7 +170,7 @@ jobs:
     name: Docker Build
     runs-on: ubuntu-latest
     needs: [quality, test]
-    
+
     steps:
       - uses: actions/checkout@v4
 
@@ -213,7 +213,7 @@ jobs:
     name: End-to-End Tests
     runs-on: ubuntu-latest
     needs: [integration, docker]
-    
+
     steps:
       - uses: actions/checkout@v4
 
@@ -246,22 +246,22 @@ jobs:
     name: Security Scan
     runs-on: ubuntu-latest
     needs: [quality]
-    
+
     steps:
       - uses: actions/checkout@v4
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
+          scan-type: "fs"
+          scan-ref: "."
+          format: "sarif"
+          output: "trivy-results.sarif"
 
       - name: Upload Trivy scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v2
         with:
-          sarif_file: 'trivy-results.sarif'
+          sarif_file: "trivy-results.sarif"
 
   # Deploy to Staging
   deploy-staging:
@@ -270,7 +270,7 @@ jobs:
     needs: [e2e, security]
     if: github.ref == 'refs/heads/develop'
     environment: staging
-    
+
     steps:
       - uses: actions/checkout@v4
 
@@ -286,11 +286,11 @@ jobs:
     needs: [e2e, security]
     if: github.ref == 'refs/heads/main'
     environment: production
-    
+
     steps:
       - uses: actions/checkout@v4
 
       - name: Deploy to production
         run: |
           echo "Deploying to production environment..."
-          # Add your production deployment commands here 
+          # Add your production deployment commands here

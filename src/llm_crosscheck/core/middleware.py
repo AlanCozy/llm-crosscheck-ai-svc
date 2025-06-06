@@ -1,11 +1,14 @@
+import time
+
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
-import time
+
 
 class LoggingMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         response = await call_next(request)
         return response
+
 
 class ProcessTimeMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
@@ -13,6 +16,7 @@ class ProcessTimeMiddleware(BaseHTTPMiddleware):
         response = await call_next(request)
         response.headers["X-Process-Time"] = str(time.time() - start)
         return response
+
 
 class RateLimitMiddleware(BaseHTTPMiddleware):
     def __init__(self, app, rate_limit: int = 60, burst: int = 10):

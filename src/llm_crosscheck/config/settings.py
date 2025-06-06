@@ -1,5 +1,7 @@
-from pydantic_settings import BaseSettings
 from typing import List
+
+from pydantic_settings import BaseSettings
+
 
 class Settings(BaseSettings):
     APP_NAME: str = "LLM CrossCheck AI Service"
@@ -17,6 +19,7 @@ class Settings(BaseSettings):
     ALLOWED_HEADERS: List[str] = ["*"]
     RATE_LIMIT_PER_MINUTE: int = 60
     RATE_LIMIT_BURST: int = 10
+
 
 def get_settings() -> Settings:
     return Settings()

@@ -9,11 +9,11 @@ description = "A robust Python service for cross-checking and validating Large L
 readme = "README.md"
 license = {file = "LICENSE"}
 authors = [
-    {name = "Alan", email = "team@llm_crosscheck.com"}
+    {name = "Alan", email = "team@llm_crosscheck.com"},
     {name = "Alfie", email = "team@llm_crosscheck.com"}
 ]
 maintainers = [
-    {name = "Alan", email = "team@llm_crosscheck.com"}
+    {name = "Alan", email = "team@llm_crosscheck.com"},
     {name = "Alfie", email = "team@llm_crosscheck.com"}
 ]
 classifiers = [
@@ -174,4 +174,4 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "class .*\\bProtocol\\):",
     "@(abc\\.)?abstractmethod",
-] 
+]

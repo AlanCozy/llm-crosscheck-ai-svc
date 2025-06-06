@@ -87,4 +87,4 @@ RUN apt-get update && apt-get install -y \
 USER appuser
 
 # Command for development (with auto-reload)
-CMD ["uvicorn", "src.llm_crosscheck.api.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"] 
+CMD ["uvicorn", "src.llm_crosscheck.api.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

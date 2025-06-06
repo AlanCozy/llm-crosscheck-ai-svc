@@ -27,11 +27,11 @@ logger = get_logger(__name__)
 class LLMManager(LoggerMixin):
     """
     Comprehensive LLM management service.
-    
+
     Orchestrates multiple LLM providers and manages prompt templates
     for consistent and reliable LLM interactions.
     """
-    
+
     def __init__(
         self,
         prompt_dirs: Optional[List[str]] = None,
@@ -39,7 +39,7 @@ class LLMManager(LoggerMixin):
     ):
         """
         Initialise the LLM Manager.
-        
+
         Args:
             prompt_dirs: List of directories containing prompt templates
             default_provider: Default LLM provider to use
@@ -49,55 +49,55 @@ class LLMManager(LoggerMixin):
             # Default to prompts directory at project root
             project_root = Path(__file__).parent.parent.parent.parent
             prompt_dirs = [str(project_root / "prompts")]
-        
+
         # Initialise prompt engine
         self.prompt_engine = PromptEngine(
             template_dirs=prompt_dirs,
             auto_reload=True,  # Enable auto-reload for development
             cache_size=50,
         )
-        
+
         # LLM provider instances
         self._llm_providers: Dict[LLMProvider, Any] = {}
         self.default_provider = default_provider
-        
+
         self.logger.info(
             "Initialised LLM Manager",
             extra={
                 "prompt_dirs": prompt_dirs,
                 "default_provider": default_provider.value,
-            }
+            },
         )
-    
+
     def register_provider(self, config: LLMProviderConfig) -> None:
         """
         Register an LLM provider.
-        
+
         Args:
             config: Provider configuration
         """
         try:
             llm_instance = LLMFactory.create_llm(config)
             self._llm_providers[config.provider] = llm_instance
-            
+
             self.logger.info(
                 f"Registered {config.provider.value} LLM provider",
                 extra={
                     "provider": config.provider.value,
                     "model": config.default_model,
-                }
+                },
             )
-            
+
         except Exception as e:
             self.logger.error(
                 f"Failed to register {config.provider.value} provider",
                 extra={
                     "provider": config.provider.value,
                     "error": str(e),
-                }
+                },
             )
             raise
-    
+
     async def generate_from_template(
         self,
         template_name: str,
@@ -108,42 +108,42 @@ class LLMManager(LoggerMixin):
     ) -> LLMResponse:
         """
         Generate LLM response using a prompt template.
-        
+
         Args:
             template_name: Name of the prompt template
             context: Template context variables
             model: Specific model to use
             provider: Specific provider to use
             generation_params: Additional generation parameters
-            
+
         Returns:
             LLM response
         """
         # Determine provider
         provider = provider or self.default_provider
-        
+
         if provider not in self._llm_providers:
             raise ValueError(f"Provider {provider.value} not registered")
-        
+
         # Render template
         template_context = TemplateContext(variables=context)
-        rendered_prompt = self.prompt_engine.render_template(template_name, template_context)
-        
+        rendered_prompt = self.prompt_engine.render_template(
+            template_name, template_context
+        )
+
         # Create LLM request
-        messages = [
-            LLMMessage(role=LLMRole.USER, content=rendered_prompt)
-        ]
-        
+        messages = [LLMMessage(role=LLMRole.USER, content=rendered_prompt)]
+
         # Set up generation parameters
         params = generation_params or {}
         llm_provider = self._llm_providers[provider]
-        
+
         request = LLMRequest(
             messages=messages,
             model=model or llm_provider.config.default_model,
-            **params
+            **params,
         )
-        
+
         # Generate response
         self.logger.info(
             f"Generating response using template '{template_name}'",
@@ -152,11 +152,11 @@ class LLMManager(LoggerMixin):
                 "provider": provider.value,
                 "model": request.model,
                 "context_keys": list(context.keys()),
-            }
+            },
         )
-        
+
         response = await llm_provider.generate(request)
-        
+
         self.logger.info(
             f"Generated response from template '{template_name}'",
             extra={
@@ -164,11 +164,11 @@ class LLMManager(LoggerMixin):
                 "provider": provider.value,
                 "response_id": response.id,
                 "response_length": len(response.content),
-            }
+            },
         )
-        
+
         return response
-    
+
     async def cross_check_response(
         self,
         original_query: str,
@@ -179,14 +179,14 @@ class LLMManager(LoggerMixin):
     ) -> LLMResponse:
         """
         Cross-check an LLM response using the validation template.
-        
+
         Args:
             original_query: The original query that was asked
             response_to_check: The LLM response to validate
             response_provider: Name of the provider that generated the response
             validation_aspects: Additional aspects to validate
             checker_provider: Provider to use for cross-checking
-            
+
         Returns:
             Cross-check analysis response
         """
@@ -194,13 +194,13 @@ class LLMManager(LoggerMixin):
             "original_query": original_query,
             "llm_response": response_to_check,
         }
-        
+
         if response_provider:
             context["response_provider"] = response_provider
-        
+
         if validation_aspects:
             context["validation_aspects"] = validation_aspects
-        
+
         return await self.generate_from_template(
             template_name="crosscheck/response_validation",
             context=context,
@@ -208,9 +208,9 @@ class LLMManager(LoggerMixin):
             generation_params={
                 "temperature": 0.3,  # Lower temperature for more consistent analysis
                 "max_tokens": 2000,
-            }
+            },
         )
-    
+
     async def code_review(
         self,
         code: str,
@@ -222,7 +222,7 @@ class LLMManager(LoggerMixin):
     ) -> LLMResponse:
         """
         Perform code review using the code review template.
-        
+
         Args:
             code: Code to review
             language: Programming language
@@ -230,7 +230,7 @@ class LLMManager(LoggerMixin):
             severity_threshold: Minimum severity level to report
             include_suggestions: Whether to include improvement suggestions
             provider: Provider to use for review
-            
+
         Returns:
             Code review analysis response
         """
@@ -239,13 +239,13 @@ class LLMManager(LoggerMixin):
             "language": language,
             "include_suggestions": include_suggestions,
         }
-        
+
         if focus_areas:
             context["focus_areas"] = focus_areas
-        
+
         if severity_threshold:
             context["severity_threshold"] = severity_threshold
-        
+
         return await self.generate_from_template(
             template_name="tasks/code_review",
             context=context,
@@ -253,34 +253,34 @@ class LLMManager(LoggerMixin):
             generation_params={
                 "temperature": 0.2,  # Lower temperature for consistent analysis
                 "max_tokens": 3000,
-            }
+            },
         )
-    
+
     def list_available_templates(self, category: Optional[str] = None) -> List[str]:
         """
         List available prompt templates.
-        
+
         Args:
             category: Optional category filter
-            
+
         Returns:
             List of template names
         """
         return self.prompt_engine.list_templates(category=category)
-    
+
     def get_available_providers(self) -> List[LLMProvider]:
         """
         Get list of registered providers.
-        
+
         Returns:
             List of registered provider identifiers
         """
         return list(self._llm_providers.keys())
-    
+
     async def health_check(self) -> Dict[str, Any]:
         """
         Perform health check on all registered providers.
-        
+
         Returns:
             Health status for all providers
         """
@@ -292,7 +292,7 @@ class LLMManager(LoggerMixin):
             },
             "providers": {},
         }
-        
+
         for provider, llm_instance in self._llm_providers.items():
             try:
                 provider_health = await llm_instance.health_check()
@@ -302,5 +302,5 @@ class LLMManager(LoggerMixin):
                     "status": "unhealthy",
                     "error": str(e),
                 }
-        
+
         return health_status

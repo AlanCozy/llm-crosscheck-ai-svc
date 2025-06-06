@@ -49,4 +49,7 @@ pyyaml==6.0.1
 # Utilities
 click==8.1.7
 tenacity==8.2.3  # Retry logic
-python-dateutil==2.8.2 
+python-dateutil==2.8.2
+
+# Pre-commit hooks
+pre-commit==3.5.0
