@@ -101,6 +101,17 @@ def configure_logging(
     logging.getLogger("anthropic").setLevel(logging.WARNING)
 
 
+def setup_logging(level: str = "info", log_format: str = "json") -> None:
+    numeric_level = getattr(logging, level.upper(), logging.INFO)
+
+    structlog.configure(
+        wrapper_class=structlog.make_filtering_bound_logger(numeric_level),
+        processors=[
+            structlog.processors.TimeStamper(fmt="iso"),
+            structlog.processors.JSONRenderer() if log_format == "json" else structlog.dev.ConsoleRenderer(),
+        ],
+    )
+
 def get_logger(name: str) -> structlog.BoundLogger:
     """
     Get a configured logger instance.
