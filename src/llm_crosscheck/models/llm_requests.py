@@ -15,7 +15,7 @@ class LLMRequestDocument(TimestampedDocument):
     """MongoDB document for LLM requests."""
 
     # Request identification
-    request_id: UUID = Field(unique=True)
+    request_id: UUID = Field()
     user_id: str | None = Indexed(str, optional=True)
     session_id: str | None = Indexed(str, optional=True)
 

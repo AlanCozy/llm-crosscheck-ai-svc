@@ -53,3 +53,5 @@ python-dateutil==2.8.2
 
 # Pre-commit hooks
 pre-commit==3.6.0
+
+starlette~=0.27.0

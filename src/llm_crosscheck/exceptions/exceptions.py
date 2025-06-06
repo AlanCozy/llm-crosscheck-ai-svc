@@ -1,3 +1,5 @@
+from typing import Any, Dict, Optional
+
 from fastapi import status
 
 
@@ -7,8 +9,8 @@ class LLMCrossCheckException(Exception):
         message: str,
         error_code: str = "llm_error",
         status_code: int = status.HTTP_400_BAD_REQUEST,
-        details: dict = None,
-    ):
+        details: Optional[Dict[str, Any]] = None,
+    ) -> None:
         super().__init__(message)
         self.status_code = status_code
         self.error_code = error_code

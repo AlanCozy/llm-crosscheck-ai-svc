@@ -1,13 +1,7 @@
-"""
-OpenAI LLM provider implementation.
-
-This module provides integration with OpenAI's GPT models through their official API,
-including support for both standard and streaming completions.
-"""
-
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Coroutine
 from datetime import datetime
 from typing import Any
+from uuid import uuid4
 
 import openai
 from openai import AsyncOpenAI
@@ -33,9 +27,6 @@ from .base import (
 
 
 class OpenAILLM(BaseLLM):
-    """OpenAI LLM provider implementation."""
-
-    # OpenAI model configurations
     SUPPORTED_MODELS = [
         "gpt-4",
         "gpt-4-0613",
@@ -52,15 +43,8 @@ class OpenAILLM(BaseLLM):
     ]
 
     def __init__(self, config: LLMProviderConfig):
-        """
-        Initialise OpenAI LLM provider.
-
-        Args:
-            config: OpenAI-specific configuration
-        """
         super().__init__(config)
 
-        # Validate OpenAI-specific configuration
         if config.provider != LLMProvider.OPENAI:
             raise LLMValidationError(
                 f"Invalid provider {config.provider} for OpenAI LLM"
@@ -69,57 +53,31 @@ class OpenAILLM(BaseLLM):
         if not config.api_key:
             raise LLMValidationError("OpenAI API key is required")
 
+        self._client: AsyncOpenAI = self._initialise_client()
+
     @property
     def provider_name(self) -> str:
-        """Return the name of this LLM provider."""
         return "OpenAI"
 
     @property
     def supported_models(self) -> list[str]:
-        """Return list of models supported by this provider."""
         return self.SUPPORTED_MODELS
 
-    async def _initialise_client(self) -> AsyncOpenAI:
-        """
-        Initialise the OpenAI client.
-
-        Returns:
-            The initialised AsyncOpenAI client
-        """
-        client_kwargs = {
-            "api_key": self.config.api_key,
-            "timeout": self.config.timeout_seconds,
-        }
-
-        if self.config.base_url:
-            client_kwargs["base_url"] = self.config.base_url
-
-        if self.config.organisation:
-            client_kwargs["organization"] = self.config.organisation
-
-        return AsyncOpenAI(**client_kwargs)
+    def _initialise_client(self) -> AsyncOpenAI:
+        return AsyncOpenAI(
+            api_key=self.config.api_key,
+            timeout=self.config.timeout_seconds,
+            base_url=self.config.base_url,
+            organization=self.config.organisation,
+        )
 
     async def _make_request(self, request: LLMRequest) -> LLMResponse:
-        """
-        Make a request to OpenAI API.
-
-        Args:
-            request: Standardised LLM request
-
-        Returns:
-            Standardised LLM response
-
-        Raises:
-            LLMError: For any OpenAI-specific errors
-        """
         try:
-            # Convert messages to OpenAI format
-            openai_messages = self._convert_messages_to_openai(request.messages)
+            messages = self._convert_messages_to_openai(request.messages)
 
-            # Prepare request parameters
-            params = {
+            params: dict[str, Any] = {
                 "model": request.model,
-                "messages": openai_messages,
+                "messages": messages,
                 "max_tokens": request.max_tokens,
                 "temperature": request.temperature,
                 "top_p": request.top_p,
@@ -128,177 +86,115 @@ class OpenAILLM(BaseLLM):
                 "stream": request.stream,
             }
 
-            # Add functions if provided
             if request.functions:
                 params["functions"] = request.functions
-
             if request.function_call:
                 params["function_call"] = request.function_call
 
-            # Remove None values
             params = {k: v for k, v in params.items() if v is not None}
 
-            # Make the API call
             response = await self._client.chat.completions.create(**params)
-
-            # Convert response to standardised format
             return self._convert_openai_response(response, request)
 
         except openai.AuthenticationError as e:
             raise LLMAuthenticationError(
-                f"OpenAI authentication failed: {str(e)}",
-                provider=self.provider_name,
-                model=request.model,
+                str(e), provider=self.provider_name, model=request.model
             )
-
         except openai.RateLimitError as e:
-            # Extract retry-after header if available
             retry_after = None
             if hasattr(e, "response") and e.response:
-                retry_after = e.response.headers.get("retry-after")
-                if retry_after:
-                    retry_after = float(retry_after)
-
+                retry_after_header = e.response.headers.get("retry-after")
+                if retry_after_header:
+                    retry_after = float(retry_after_header)
             raise LLMRateLimitError(
-                f"OpenAI rate limit exceeded: {str(e)}",
+                str(e),
                 retry_after=retry_after,
                 provider=self.provider_name,
                 model=request.model,
             )
-
         except (openai.APIConnectionError, openai.APITimeoutError) as e:
             raise LLMConnectionError(
-                f"OpenAI connection error: {str(e)}",
-                provider=self.provider_name,
-                model=request.model,
+                str(e), provider=self.provider_name, model=request.model
             )
-
         except openai.BadRequestError as e:
             raise LLMValidationError(
-                f"OpenAI request validation failed: {str(e)}",
-                provider=self.provider_name,
-                model=request.model,
+                str(e), provider=self.provider_name, model=request.model
             )
-
         except openai.OpenAIError as e:
-            raise LLMError(
-                f"OpenAI API error: {str(e)}",
-                provider=self.provider_name,
-                model=request.model,
-            )
-
+            raise LLMError(str(e), provider=self.provider_name, model=request.model)
         except Exception as e:
-            raise LLMError(
-                f"Unexpected OpenAI error: {str(e)}",
-                provider=self.provider_name,
-                model=request.model,
-            )
+            raise LLMError(str(e), provider=self.provider_name, model=request.model)
 
-    async def _stream_request(self, request: LLMRequest) -> AsyncIterator[str]:
-        """
-        Make a streaming request to OpenAI API.
+    async def _stream_request(
+        self, request: LLMRequest
+    ) -> Coroutine[Any, Any, AsyncIterator[str]]:
+        async def stream() -> AsyncIterator[str]:
+            try:
+                messages = self._convert_messages_to_openai(request.messages)
 
-        Args:
-            request: Standardised LLM request
+                params: dict[str, Any] = {
+                    "model": request.model,
+                    "messages": messages,
+                    "max_tokens": request.max_tokens,
+                    "temperature": request.temperature,
+                    "top_p": request.top_p,
+                    "frequency_penalty": request.frequency_penalty,
+                    "presence_penalty": request.presence_penalty,
+                    "stream": True,
+                }
 
-        Yields:
-            String chunks from the streaming response
+                params = {k: v for k, v in params.items() if v is not None}
 
-        Raises:
-            LLMError: For any OpenAI-specific errors
-        """
-        try:
-            # Convert messages to OpenAI format
-            openai_messages = self._convert_messages_to_openai(request.messages)
+                async for chunk in await self._client.chat.completions.create(**params):
+                    if chunk.choices and chunk.choices[0].delta:
+                        content = chunk.choices[0].delta.content
+                        if content:
+                            yield content
 
-            # Prepare request parameters
-            params = {
-                "model": request.model,
-                "messages": openai_messages,
-                "max_tokens": request.max_tokens,
-                "temperature": request.temperature,
-                "top_p": request.top_p,
-                "frequency_penalty": request.frequency_penalty,
-                "presence_penalty": request.presence_penalty,
-                "stream": True,
-            }
+            except Exception as e:
+                raise LLMError(
+                    f"OpenAI streaming error: {str(e)}",
+                    provider=self.provider_name,
+                    model=request.model,
+                )
 
-            # Remove None values
-            params = {k: v for k, v in params.items() if v is not None}
-
-            # Make the streaming API call
-            async for chunk in await self._client.chat.completions.create(**params):
-                if chunk.choices and chunk.choices[0].delta:
-                    content = chunk.choices[0].delta.content
-                    if content:
-                        yield content
-
-        except Exception as e:
-            # Reuse error handling from _make_request
-            raise LLMError(
-                f"OpenAI streaming error: {str(e)}",
-                provider=self.provider_name,
-                model=request.model,
-            )
+        return stream()
 
     def _convert_messages_to_openai(
         self, messages: list[LLMMessage]
     ) -> list[dict[str, Any]]:
-        """
-        Convert standardised messages to OpenAI format.
-
-        Args:
-            messages: List of standardised LLM messages
-
-        Returns:
-            List of OpenAI-formatted messages
-        """
-        openai_messages = []
-
+        result = []
         for message in messages:
-            openai_message = {
+            msg: dict[str, Any] = {
                 "role": message.role.value,
                 "content": message.content,
             }
-
             if message.name:
-                openai_message["name"] = message.name
-
+                msg["name"] = message.name
             if message.function_call:
-                openai_message["function_call"] = message.function_call
-
-            openai_messages.append(openai_message)
-
-        return openai_messages
+                msg["function_call"] = message.function_call
+            result.append(msg)
+        return result
 
     def _convert_openai_response(
         self, response: Any, request: LLMRequest
     ) -> LLMResponse:
-        """
-        Convert OpenAI response to standardised format.
-
-        Args:
-            response: OpenAI API response
-            request: Original request for correlation
-
-        Returns:
-            Standardised LLM response
-        """
-        # Convert choices
         choices = []
         for choice in response.choices:
+            msg = choice.message
             message = LLMMessage(
-                role=LLMRole(choice.message.role),
-                content=choice.message.content or "",
-                function_call=getattr(choice.message, "function_call", None),
+                role=LLMRole(msg.role),
+                content=msg.content or "",
+                function_call=getattr(msg, "function_call", None),
+            )
+            choices.append(
+                LLMChoice(
+                    index=choice.index,
+                    message=message,
+                    finish_reason=choice.finish_reason,
+                )
             )
 
-            llm_choice = LLMChoice(
-                index=choice.index, message=message, finish_reason=choice.finish_reason
-            )
-            choices.append(llm_choice)
-
-        # Convert usage information
         usage = None
         if response.usage:
             usage = LLMUsage(
@@ -316,4 +212,5 @@ class OpenAILLM(BaseLLM):
             choices=choices,
             usage=usage,
             request_id=request.request_id,
+            response_time_ms=None,  # Required to fix the missing argument error
         )

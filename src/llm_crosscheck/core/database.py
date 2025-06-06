@@ -3,10 +3,12 @@ MongoDB database configuration and connection management.
 """
 
 import os
+from typing import Optional
 
 from beanie import init_beanie
-from motor.motor_asyncio import AsyncIOMotorClient
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from pymongo.errors import ConnectionFailure
+from pymongo.collection import Collection
 
 from ..models import (
     AuditLogDocument,
@@ -22,11 +24,11 @@ logger = get_logger(__name__)
 class DatabaseManager:
     """MongoDB database connection manager."""
 
-    def __init__(self):
-        self.client: AsyncIOMotorClient | None = None
-        self.database = None
+    def __init__(self) -> None:
+        self.client: Optional[AsyncIOMotorClient] = None
+        self.database: Optional[AsyncIOMotorDatabase] = None
 
-    async def connect(self, mongodb_url: str | None = None) -> None:
+    async def connect(self, mongodb_url: Optional[str] = None) -> None:
         """Connect to MongoDB database."""
         if not mongodb_url:
             mongodb_url = os.getenv(
@@ -35,18 +37,13 @@ class DatabaseManager:
             )
 
         try:
-            # Create MongoDB client
             self.client = AsyncIOMotorClient(mongodb_url)
-
-            # Test connection
             await self.client.admin.command("ping")
             logger.info("Successfully connected to MongoDB")
 
-            # Get database name from URL or use default
             db_name = mongodb_url.split("/")[-1].split("?")[0] or "llm_crosscheck"
             self.database = self.client[db_name]
 
-            # Initialize Beanie ODM
             await init_beanie(
                 database=self.database,
                 document_models=[
@@ -88,40 +85,26 @@ class DatabaseManager:
         """Create database indexes for performance."""
         try:
             # LLM Requests indexes
-            await LLMRequestDocument.get_motor_collection().create_index(
-                [("request_id", 1)], unique=True
-            )
-
-            await LLMRequestDocument.get_motor_collection().create_index(
-                [("user_id", 1), ("created_at", -1)]
-            )
+            collection1: Collection = LLMRequestDocument.get_motor_collection()
+            await collection1.create_index([("request_id", 1)], unique=True)
+            await collection1.create_index([("user_id", 1), ("created_at", -1)])
 
             # LLM Responses indexes
-            await LLMResponseDocument.get_motor_collection().create_index(
-                [("request_id", 1)]
-            )
-
-            await LLMResponseDocument.get_motor_collection().create_index(
+            collection2: Collection = LLMResponseDocument.get_motor_collection()
+            await collection2.create_index([("request_id", 1)])
+            await collection2.create_index(
                 [("provider", 1), ("model", 1), ("created_at", -1)]
             )
 
             # Prompt Templates indexes
-            await PromptTemplateDocument.get_motor_collection().create_index(
-                [("name", 1)], unique=True
-            )
-
-            await PromptTemplateDocument.get_motor_collection().create_index(
-                [("category", 1), ("is_active", 1)]
-            )
+            collection3: Collection = PromptTemplateDocument.get_motor_collection()
+            await collection3.create_index([("name", 1)], unique=True)
+            await collection3.create_index([("category", 1), ("is_active", 1)])
 
             # Audit Logs indexes
-            await AuditLogDocument.get_motor_collection().create_index(
-                [("event_type", 1), ("created_at", -1)]
-            )
-
-            await AuditLogDocument.get_motor_collection().create_index(
-                [("user_id", 1), ("created_at", -1)]
-            )
+            collection4: Collection = AuditLogDocument.get_motor_collection()
+            await collection4.create_index([("event_type", 1), ("created_at", -1)])
+            await collection4.create_index([("user_id", 1), ("created_at", -1)])
 
             logger.info("Successfully created database indexes")
 
@@ -134,12 +117,12 @@ class DatabaseManager:
 db_manager = DatabaseManager()
 
 
-async def get_database():
+async def get_database() -> Optional[AsyncIOMotorDatabase]:
     """Get database instance."""
     return db_manager.database
 
 
-async def init_database(mongodb_url: str | None = None) -> None:
+async def init_database(mongodb_url: Optional[str] = None) -> None:
     """Initialize database connection."""
     await db_manager.connect(mongodb_url)
     await db_manager.create_indexes()
